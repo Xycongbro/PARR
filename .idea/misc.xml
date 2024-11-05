@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Black">
+    <option name="sdkName" value="envthpy39" />
+  </component>
+  <component name="ProjectRootManager" version="2" project-jdk-name="Remote Python 3.7.13 (sftp://zx@10.68.44.250:10163/home/zx/anaconda3/envs/envpyth17/bin/python)" project-jdk-type="Python SDK" />
+  <component name="PyPackaging">
+    <option name="earlyReleasesAsUpgrades" value="true" />
+  </component>
+</project>

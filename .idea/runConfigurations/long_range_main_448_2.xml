@@ -1,0 +1,26 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="long_range_main_448_2" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+    <module name="Pyraformer" />
+    <option name="ENV_FILES" value="" />
+    <option name="INTERPRETER_OPTIONS" value="" />
+    <option name="PARENT_ENVS" value="true" />
+    <envs>
+      <env name="PYTHONUNBUFFERED" value="1" />
+    </envs>
+    <option name="SDK_HOME" value="" />
+    <option name="SDK_NAME" value="Remote Python 3.7.13 (sftp://zx@10.68.44.250:10163/home/zx/anaconda3/envs/envpyth17/bin/python)" />
+    <option name="WORKING_DIRECTORY" value="" />
+    <option name="IS_MODULE_SDK" value="false" />
+    <option name="ADD_CONTENT_ROOTS" value="true" />
+    <option name="ADD_SOURCE_ROOTS" value="true" />
+    <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+    <option name="SCRIPT_NAME" value="$PROJECT_DIR$/long_range_main_448_2.py" />
+    <option name="PARAMETERS" value="-root_path data/ -data_path camels_448.csv -data camel -input_size 30 -predict_step 7 -d_model 64 -lr 0.0001 -batch_size 512 -window_size [2,2,2] -epoch 200 -iter_num 1 -inner_size 3 -n_head 4 -n_layer 4 -dropout 0.1 -lr_step 1 -d_inner_hid 128 -d_k 64 -d_v 64 -inverse" />
+    <option name="SHOW_COMMAND_LINE" value="false" />
+    <option name="EMULATE_TERMINAL" value="false" />
+    <option name="MODULE_MODE" value="false" />
+    <option name="REDIRECT_INPUT" value="false" />
+    <option name="INPUT_FILE" value="" />
+    <method v="2" />
+  </configuration>
+</component>
