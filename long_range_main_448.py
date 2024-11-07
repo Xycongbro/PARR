@@ -205,8 +205,8 @@ def train_epoch(model, train_dataset, training_loader, optimizer, opt, epoch):
             # criterion = NSELoss()
             # criterion = MixedLoss(0)
         # if inverse, both the output and the ground truth are denormalized.
-        if opt.inverse:
-            outputs, batch_y = train_dataset.inverse_transform(outputs, batch_y, mean, std)
+        # if opt.inverse:
+            # outputs, batch_y = train_dataset.inverse_transform(outputs, batch_y, mean, std)
         # compute loss
 
         losses = criterion(outputs[:, :, -1], batch_y[:, :, -1])
@@ -252,8 +252,8 @@ def eval_epoch(model, test_dataset, test_loader, opt, epoch):
             outputs = model(batch_x, batch_x_mark, dec_inp, batch_y_mark, False)
 
             # if inverse, both the output and the ground truth are denormalized.
-            if opt.inverse:
-                outputs, batch_y = test_dataset.inverse_transform(outputs, batch_y, mean, std)
+            # if opt.inverse:
+                # outputs, batch_y = test_dataset.inverse_transform(outputs, batch_y, mean, std)
 
             pred = outputs.detach().cpu().numpy()
             true = batch_y.detach().cpu().numpy()
