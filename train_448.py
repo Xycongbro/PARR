@@ -1,7 +1,7 @@
 import argparse
+import random
 import sys
 
-import numpy as np
 import time
 import torch
 import torch.optim as optim
@@ -12,6 +12,23 @@ from data_loader import *
 from utils.tools import TopkMSELoss, metric, MixedLoss, NSELoss
 import matplotlib.pyplot as plt
 from utils.tools import HuberLoss
+
+class SeedMethods:
+    @staticmethod
+    def seed_torch(seed):
+        if seed is None:
+            raise RuntimeError("Please specify random seed.")
+        random.seed(seed)
+        os.environ['PYTHONHASHSEED'] = str(seed)
+        np.random.seed(seed)
+        torch.manual_seed(seed)
+        torch.cuda.manual_seed(seed)
+        torch.cuda.manual_seed_all(seed)  # if you are using multi-GPU.
+        torch.backends.cudnn.benchmark = False
+        torch.backends.cudnn.deterministic = True
+        os.environ['CUBLAS_WORKSPACE_CONFIG'] = ':4096:8'
+
+
 
 def prepare_dataloader(args):
     """ Load data and prepare dataloader. """
@@ -46,7 +63,6 @@ def prepare_dataloader(args):
         train_set,
         batch_size=batch_size,
         shuffle=shuffle_flag,
-        num_workers=0,
         drop_last=drop_last)
 
     # prepare testing validing dataset and dataloader
@@ -67,7 +83,6 @@ def prepare_dataloader(args):
         val_set,
         batch_size=batch_size,
         shuffle=shuffle_flag,
-        num_workers=0,
         drop_last=drop_last
     )
     test_set = Data(
@@ -84,7 +99,6 @@ def prepare_dataloader(args):
         test_set,
         batch_size=batch_size,
         shuffle=shuffle_flag,
-        num_workers=0,
         drop_last=drop_last
     )
     return train_loader, train_set, test_loader, test_set, val_loader, val_set
@@ -111,7 +125,7 @@ def dataset_parameters(args, dataset):
         'elect': 1,
         'flow': 1,
         'synthetic': 1,
-        'camel': 5
+        'camel': 6
     }
     dataset2cov_size = {
         'ETTh1': 4,
@@ -162,7 +176,6 @@ def train_epoch(model, train_dataset, training_loader, optimizer, opt, epoch):
     model.train()
     total_loss = 0
     total_pred_number = 0
-
     for batch in tqdm(training_loader, mininterval=2,
                       desc='  - (Training)   ', leave=False):
         # prepare data
@@ -206,7 +219,7 @@ def train_epoch(model, train_dataset, training_loader, optimizer, opt, epoch):
             # criterion = MixedLoss(0)
         # if inverse, both the output and the ground truth are denormalized.
         # if opt.inverse:
-            # outputs, batch_y = train_dataset.inverse_transform(outputs, batch_y, mean, std)
+        #     outputs, batch_y = train_dataset.inverse_transform(outputs, batch_y, mean, std)
         # compute loss
 
         losses = criterion(outputs[:, :, -1], batch_y[:, :, -1])
@@ -253,7 +266,7 @@ def eval_epoch(model, test_dataset, test_loader, opt, epoch):
 
             # if inverse, both the output and the ground truth are denormalized.
             # if opt.inverse:
-                # outputs, batch_y = test_dataset.inverse_transform(outputs, batch_y, mean, std)
+            #     outputs, batch_y = test_dataset.inverse_transform(outputs, batch_y, mean, std)
 
             pred = outputs.detach().cpu().numpy()
             true = batch_y.detach().cpu().numpy()
@@ -738,7 +751,7 @@ def main(opt, iter_index):
     print('[Info] parameters: {}'.format(opt))
 
     if torch.cuda.is_available():
-        opt.device = torch.device("cuda", 1)
+        opt.device = torch.device("cuda", 3)
     else:
         opt.device = torch.device('cpu')
 
@@ -752,8 +765,8 @@ def main(opt, iter_index):
     print('[Info] Number of parameters: {}'.format(num_params))
 
     """ train or evaluate the model """
-    model_save_dir_nse = 'models/448/best_iter_448_1_nse_cuda_1_wo_15_7.pth'
-    model_save_dir_mse = 'models/448/best_iter_448_1_mse_cuda_1_wo_15_7.pth'
+    model_save_dir_nse = 'models/448/best_iter_448_nse_' + iter_index + '.pth'
+    model_save_dir_mse = 'models/448/best_iter_448_mse_' + iter_index + '.pth'
     if opt.eval:
         best_metrics = evaluate(model, opt, model_save_dir_nse, model_save_dir_mse)
     else:
@@ -769,6 +782,7 @@ def main(opt, iter_index):
 
 
 if __name__ == '__main__':
+    SeedMethods.seed_torch(seed=2233)
     opt = parse_args()
     opt = dataset_parameters(opt, opt.data)
     opt.window_size = eval(opt.window_size)

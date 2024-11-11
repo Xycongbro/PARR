@@ -1,4 +1,5 @@
 import argparse
+import random
 import sys
 
 import numpy as np
@@ -13,6 +14,20 @@ from data_loader import *
 from utils.tools import TopkMSELoss, metric, MixedLoss
 import matplotlib.pyplot as plt
 
+
+class SeedMethods:
+    @staticmethod
+    def seed_torch(seed):
+        if seed is None:
+            raise RuntimeError("Please specify random seed.")
+        random.seed(seed)
+        os.environ['PYTHONHASHSEED'] = str(seed)
+        np.random.seed(seed)
+        torch.manual_seed(seed)
+        torch.cuda.manual_seed(seed)
+        torch.cuda.manual_seed_all(seed)  # if you are using multi-GPU.
+        torch.backends.cudnn.benchmark = False
+        torch.backends.cudnn.deterministic = True
 
 def prepare_dataloader(args):
     """ Load data and prepare dataloader. """
@@ -95,7 +110,7 @@ def dataset_parameters(args, dataset):
         'elect': 1,
         'flow': 1,
         'synthetic': 1,
-        'camel': 6
+        'camel': 5
     }
     dataset2cov_size = {
         'ETTh1': 4,
@@ -260,24 +275,20 @@ def main(opt):
     all_metrics_list = [[] for _ in range(opt.predict_step)]  # 创建一个包含所有指标的列表
     columns = ['location', 'nse', 'rmse', 'atpe', 'bias', 'kge']  # 假设这是你的指标名称
     values_all = pd.DataFrame(columns=columns)  # 存储所有 values
-
-    j = 0
     for camel_one in sorted(os.listdir(opt.root_path)):
-        j += 1
-        print(j)
-        print(camel_one)
+        print("camel: " + camel_one)
         opt.data_path = camel_one
         print('[Info] parameters: {}'.format(opt))
 
         if torch.cuda.is_available():
-            opt.device = torch.device("cuda", 1)
+            opt.device = torch.device("cuda", 3)
         else:
             opt.device = torch.device('cpu')
 
         """ prepare model """
         """ load pretrained model """
         pre_mode = eval(opt.model).Model(opt)
-        model_save_dir = 'models/448/best_iter_448_1_mse_cuda_1_loss_mae.pth'
+        model_save_dir = 'models/448/best_iter_448_mse_' + '0' + '.pth'
         checkpoint = torch.load(model_save_dir)["state_dict"]
         pre_mode.load_state_dict(checkpoint)
 
@@ -323,6 +334,7 @@ def main(opt):
 
 
 if __name__ == '__main__':
+    SeedMethods.seed_torch(seed=2233)
     opt = parse_args()
     opt = dataset_parameters(opt, opt.data)
     opt.window_size = eval(opt.window_size)
